@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<h2>博客系统</h2>
+<table class="table table-bordered">
+    <tr>
+        <td>博客系统</td>
+    </tr>
+    <tr>
+        <td>博客分类:@Html.DropDownList("CategoryList")</td>
+    </tr>
+</table>
+<table class="table table-striped" id="myTable">
+   <thead>
+       <tr>
+           <th>博客编号</th>
+           <th>博客内容</th>
+           <th>发布时间</th>
+       </tr>
+   </thead>
+    <tbody>
+    </tbody>
+</table>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#CategoryList").change(function () {
+            $.ajax({
+                url: "/Blog/GetBlogByCategoryId",
+                type: "Post",
+                dataType: "json",
+                data: { "id": $("#CategoryList").val() },
+                success: function (data) {
+                    //赋值之前清空掉
+                    $("#myTable tbody").html('');
+                    //或者这句也可以：   $("#myTable tbody").empty();
+                    var tr = "<tr>";
+                    $.each(data, function (i, item) {
+                        tr += "<td>" + item.BlogId + "</td>>";
+                        tr += "<td>" + item.BlogContent + "</td>>";
+                        tr += "<td>" + ChangeDateFormat(item.AddedDate) + "</td>>";
+                        tr += "</tr>";
+                    });
+                    $("#myTable tbody").append(tr);
+                },
+                error: function (result) {
+                    alert(result.responseText);
+                }
+            });
+        });
+
+    });
+
+</script>
+
+<script type="text/javascript">
+    //http://blog.csdn.net/cncdns/article/details/6164389
+    function ChangeDateFormat(jsondate) {
+        jsondate = jsondate.replace("/Date(", "").replace(")/", "");
+        if (jsondate.indexOf("+") > 0) {
+            jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+        }
+        else if (jsondate.indexOf("-") > 0) {
+            jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+        }
+
+        var date = new Date(parseInt(jsondate, 10));
+        var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+        var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+        return date.getFullYear() + "-" + month + "-" + currentDate;
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
